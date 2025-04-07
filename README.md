@@ -31,7 +31,7 @@ The project follows a modular design with separate Django apps:
 1. Clone the repository:
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/sanskarpan/quora-clone
 cd quora_clone
 ```
 
