@@ -1,0 +1,110 @@
+{% extends 'core/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ question.title }} - Quora Clone{% endblock %}
+
+{% block content %}
+<div class="question-header">
+    <h1 class="mb-3">{{ question.title }}</h1>
+    <div class="d-flex justify-content-between mb-3">
+        <div class="author-info">
+            <span class="me-3">
+                <i class="bi bi-person"></i> {{ question.author.username }}
+            </span>
+            <span>
+                <i class="bi bi-calendar"></i> {{ question.created_at|date:"F d, Y" }}
+            </span>
+        </div>
+        {% if user == question.author %}
+        <div class="btn-group">
+            <a href="{% url 'question-update' question.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+            <a href="{% url 'question-delete' question.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+        </div>
+        {% endif %}
+    </div>
+    
+    {% if question.description %}
+    <div class="card mb-4">
+        <div class="card-body">
+            <p class="card-text">{{ question.description|linebreaks }}</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<h3 class="mb-3">
+    {{ answers.count }} Answer{{ answers.count|pluralize }}
+</h3>
+
+{% if user.is_authenticated %}
+<div class="answer-form mb-4">
+    <h4 class="mb-3">Your Answer</h4>
+    <form method="POST">
+        {% csrf_token %}
+        {{ answer_form|crispy }}
+        <div class="mt-3">
+            <button type="submit" class="btn btn-primary">Post Your Answer</button>
+        </div>
+    </form>
+</div>
+{% else %}
+<div class="alert alert-info mb-4">
+    <p><a href="{% url 'login' %}">Login</a> or <a href="{% url 'register' %}">register</a> to post an answer.</p>
+</div>
+{% endif %}
+
+{% if answers %}
+    {% for answer in answers %}
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between mb-3">
+                <div class="author-info">
+                    <span class="me-3">
+                        <i class="bi bi-person"></i> {{ answer.author.username }}
+                    </span>
+                    <span>
+                        <i class="bi bi-calendar"></i> {{ answer.created_at|date:"F d, Y" }}
+                    </span>
+                </div>
+                {% if user == answer.author %}
+                <div class="btn-group">
+                    <a href="{% url 'answer-update' answer.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                    <a href="{% url 'answer-delete' answer.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="card-text mb-3">
+                {{ answer.content|linebreaks }}
+            </div>
+            
+            <div class="d-flex align-items-center">
+                {% if user.is_authenticated %}
+                <span class="like-button {% if answer.id in user_likes %}active{% endif %}" data-answer-id="{{ answer.id }}">
+                    {% if answer.id in user_likes %}
+                    <i class="bi bi-heart-fill"></i>
+                    {% else %}
+                    <i class="bi bi-heart"></i>
+                    {% endif %}
+                </span>
+                {% else %}
+                <span class="like-button disabled">
+                    <i class="bi bi-heart"></i>
+                </span>
+                {% endif %}
+                <span id="likes-count-{{ answer.id }}" class="likes-count ms-1">
+                    {{ answer.like_count }}
+                </span>
+                <span class="ms-1">
+                    like{{ answer.like_count|pluralize }}
+                </span>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="alert alert-secondary">
+        <p>No answers yet. Be the first to answer this question!</p>
+    </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,138 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Questions - Quora Clone{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Questions</h1>
+            {% if user.is_authenticated %}
+            <a href="{% url 'question-create' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Ask a Question
+            </a>
+            {% endif %}
+        </div>
+        
+        {% if questions %}
+            {% for question in questions %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <a href="{% url 'question-detail' question.pk %}" class="text-decoration-none">
+                                {{ question.title }}
+                            </a>
+                        </h5>
+                        <div class="author-info mb-2">
+                            <span class="me-3">
+                                <i class="bi bi-person"></i> {{ question.author.username }}
+                            </span>
+                            <span class="me-3">
+                                <i class="bi bi-calendar"></i> {{ question.created_at|date:"M d, Y" }}
+                            </span>
+                            <span>
+                                <i class="bi bi-chat-dots"></i> {{ question.answer_count }} answer{{ question.answer_count|pluralize }}
+                            </span>
+                        </div>
+                        {% if question.description %}
+                            <p class="card-text">{{ question.description|truncatewords:30 }}</p>
+                        {% endif %}
+                        <a href="{% url 'question-detail' question.pk %}" class="btn btn-sm btn-outline-primary">
+                            View Question
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+            
+            <!-- Pagination -->
+            {% if is_paginated %}
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1">First</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">First</a>
+                            </li>
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                            </li>
+                        {% endif %}
+                        
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active">
+                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                </li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Next</a>
+                            </li>
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Last</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+            
+        {% else %}
+            <div class="alert alert-info">
+                <p>No questions have been asked yet.</p>
+                {% if user.is_authenticated %}
+                    <p>Be the first to ask a question!</p>
+                {% else %}
+                    <p><a href="{% url 'login' %}">Login</a> or <a href="{% url 'register' %}">register</a> to ask the first question!</p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">How to Ask</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        Make sure your question is clear and specific
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        Provide necessary details for others to understand
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        Check if a similar question has been asked already
+                    </li>
+                    <li>
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        Be respectful and follow community guidelines
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

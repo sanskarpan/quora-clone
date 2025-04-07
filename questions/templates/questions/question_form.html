@@ -1,0 +1,44 @@
+{% extends 'core/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+    {% if form.instance.pk %}
+        Edit Question - Quora Clone
+    {% else %}
+        Ask a Question - Quora Clone
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="mb-0">
+                    {% if form.instance.pk %}
+                        Edit Your Question
+                    {% else %}
+                        Ask a Question
+                    {% endif %}
+                </h2>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            {% if form.instance.pk %}
+                                Update Question
+                            {% else %}
+                                Post Question
+                            {% endif %}
+                        </button>
+                        <a href="{% url 'question-list' %}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
